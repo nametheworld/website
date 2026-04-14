@@ -4,8 +4,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLanguage } from '../contexts/LanguageContext';
 import type { Language } from '../contexts/LanguageContext';
 
-gsap.registerPlugin(ScrollTrigger);
-
 export function SiteHeader() {
   const headerRef = useRef<HTMLElement>(null);
   const { lang, setLang } = useLanguage();
@@ -48,9 +46,6 @@ export function SiteHeader() {
         />
         <span style={{ fontWeight: 900, letterSpacing: '-0.05em', fontSize: '1.25rem', display: 'none' }}>LOGO</span>
       </div>
-      
-      {/* Removed middle text links per request */}
-      <nav className="header-nav"></nav>
       
       <div className="header-actions" style={{ display: 'flex', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '1.25rem', marginRight: '1rem', alignItems: 'center' }}>

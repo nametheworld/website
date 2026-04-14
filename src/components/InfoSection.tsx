@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { INFO_CONTENT, SIDEBAR_BUTTONS } from '../data';
 import type { SlideData } from '../data';
@@ -37,15 +37,16 @@ export function InfoSection() {
   // Uses requestIdleCallback so it doesn't block the main thread.
   useEffect(() => {
       const preload = () => {
-        const allUrls = Array.from(new Set<string>());
+        const urlsSet = new Set<string>();
         Object.values(INFO_CONTENT).forEach(section => {
           Object.values(section.content).forEach(langData => {
-            langData.slides?.forEach(s => allUrls.push(s.imageUrl));
-            langData.alternatingList?.forEach(s => allUrls.push(s.imageUrl));
-            langData.featureGrid?.forEach(s => allUrls.push(s.imageUrl));
-            langData.plansData?.forEach(s => { if (s.imageUrl) allUrls.push(s.imageUrl); });
+            langData.slides?.forEach(s => urlsSet.add(s.imageUrl));
+            langData.alternatingList?.forEach(s => urlsSet.add(s.imageUrl));
+            langData.featureGrid?.forEach(s => urlsSet.add(s.imageUrl));
+            langData.plansData?.forEach(s => { if (s.imageUrl) urlsSet.add(s.imageUrl); });
           });
         });
+        const allUrls = Array.from(urlsSet);
         
         // Batch loading: 3 images every 200ms
         let index = 0;
@@ -96,7 +97,7 @@ export function InfoSection() {
       style={{ pointerEvents: settled ? 'auto' : 'none' }}
     >
       <nav className="info-sidebar">
-        {SIDEBAR_BUTTONS.map((id) => {
+        {useMemo(() => SIDEBAR_BUTTONS.map((id) => {
           const section = INFO_CONTENT[id];
           return (
             <button
@@ -110,7 +111,7 @@ export function InfoSection() {
               {section.btnLabel[lang]}
             </button>
           );
-        })}
+        }), [activeId, lang])}
       </nav>
 
       <div
@@ -708,20 +709,28 @@ export function InfoSection() {
 
 function ImageCarousel({ slides, isDefault, layoutType, autoSlide = true }: { slides: SlideData[], isDefault?: boolean, layoutType?: 'standard' | 'smallCarousel' | 'multiSlide' | 'plansGrid' | 'alternatingList' | 'featureGrid' | 'contactForm' | 'menuList' | 'triangleGallery', autoSlide?: boolean }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(false);
 
   const isSmall = layoutType === 'smallCarousel';
   const isMulti = layoutType === 'multiSlide';
   const slidesToShow = isMulti ? 2.5 : 1;
   const maxIndex = Math.max(0, slides.length - Math.floor(slidesToShow));
 
-  const goNext = () => setCurrentIndex((prev) => Math.min(prev + 1, maxIndex));
-  const goPrev = () => setCurrentIndex((prev) => Math.max(prev - 1, 0));
+  const goNext = useMemo(() => () => setCurrentIndex((prev) => Math.min(prev + 1, maxIndex)), [maxIndex]);
+  const goPrev = useMemo(() => () => setCurrentIndex((prev) => Math.max(prev - 1, 0)), []);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    setIsMobile(window.innerWidth < 768);
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => setIsMobile(window.innerWidth < 768), 100);
+    };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   useEffect(() => {

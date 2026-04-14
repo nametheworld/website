@@ -1,4 +1,4 @@
-
+import { useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { VideoScroll } from './components/VideoScroll';
@@ -10,10 +10,10 @@ import './index.css';
 gsap.registerPlugin(ScrollTrigger);
 
 // Matches: frame_000.webp ... frame_158.webp (159 frames)
-const frameUrl = (index: number) =>
-  `frames/frame_${String(index).padStart(3, '0')}.webp`;
 
 function App() {
+  const frameUrl = useCallback((index: number) =>
+    `frames/frame_${String(index).padStart(3, '0')}.webp`, []);
 
   return (
     <LanguageProvider>

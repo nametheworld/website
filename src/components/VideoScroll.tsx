@@ -57,16 +57,27 @@ export function VideoScroll({ frameCount, frameUrlPattern, scrollHeight = '300vh
         imagesRef.current[i] = img;
       }
 
-      // Background: batch-load remaining frames
+      // Background: lazy load remaining frames without blocking main thread
       let cursor = 21;
-      const batchInterval = setInterval(() => {
+      const loadNextBatch = () => {
+        if (cursor >= frameCount) return;
         for (let j = 0; j < 5 && cursor < frameCount; j++, cursor++) {
           const img = new Image();
           img.src = frameUrlPattern(cursor);
           imagesRef.current[cursor] = img;
         }
-        if (cursor >= frameCount) clearInterval(batchInterval);
-      }, 100);
+        if ('requestIdleCallback' in window) {
+          (window as any).requestIdleCallback(loadNextBatch);
+        } else {
+          setTimeout(loadNextBatch, 50);
+        }
+      };
+      
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(loadNextBatch);
+      } else {
+        setTimeout(loadNextBatch, 50);
+      }
 
       // GSAP: Continuous scrub for "normal scrolling"
       const obj = { f: 0 };
