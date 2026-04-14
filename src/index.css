@@ -63,60 +63,7 @@ h1 {
 
 
 
-/* ──────────────────────────────────────────────
-   VIDEO SCROLL COMPONENT
-   ────────────────────────────────────────────── */
-.video-scroll-container {
-  width: 100%;
-}
-
-.video-scroll-sticky {
-  position: sticky;
-  top: 0;
-  height: 100svh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-  overflow: hidden;
-  will-change: transform;
-}
-
-.video-scroll-canvas-wrapper {
-  /* This centers the animation and leaves area/margin from the sides */
-  width: 100%;
-  max-width: 1200px;
-  padding: 0 5vw;
-  /* responsiveness on mobile/desktop margins */
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.video-scroll-canvas {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  /* maintains aspect ratio without cropping */
-  transition: opacity 0.5s ease;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.white-buffer {
-  height: 250px;
-  background-color: transparent;
-  width: 100%;
-  position: relative;
-  z-index: 1;
-}
-
-@media (max-width: 768px) {
-  .white-buffer {
-    height: 80px;
-  }
-}
+/* Removed old canvas CSS and white-buffer */
 
 /* ──────────────────────────────────────────────
    INFO SECTION COMPONENT
